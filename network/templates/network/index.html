@@ -1,0 +1,17 @@
+{% extends "network/layout.html" %}
+{% load static %}
+
+{% block body %}
+<a href="{% url 'newpost' %}">n</a>
+<div id="posts">
+    {% for post in posts %}
+        {{ post.content }}
+    {% endfor %}
+</div>
+
+
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'network/index.js' %}"></script>
+{% endblock %}
