@@ -1,16 +1,28 @@
 from datetime import datetime
+import json
+import time
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+
 from django.urls import reverse
-from network.models import Post
+from network.models import Post ,Like
 from .models import User
+from django.core.paginator import Paginator
 
 
 def index(request):
-    return render(request, "network/index.html",{"posts": Post.objects.all().order_by('active'),})
+    posts = Post.objects.all().order_by('id').reverse()
+    
+    # Paginate the data (2 objects per page for demonstration)
+    paginator = Paginator(posts, 5)
+    page_number = request.GET.get('page',3)
+    posts = paginator.get_page(page_number)
+
+
+    return render(request, "network/index.html",{"allposts": posts})
 
 
 def login_view(request):
@@ -88,3 +100,6 @@ def addpost(request):
         return render(request, "auctions/index.html",{
             
         })
+    
+
+

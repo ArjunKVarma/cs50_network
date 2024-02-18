@@ -10,7 +10,7 @@
         {% endblock %}
     </head>
     <body>
-
+        <script src="{% static 'network/index.js' %}"></script>
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <a class="navbar-brand" href="#">Network</a>
           
@@ -39,8 +39,14 @@
                         <a class="nav-link" href="{% url 'register' %}">Register</a>
                     </li>
                 {% endif %}
-              </ul>
+                
+              </ul>              
             </div>
+            {% if user.is_authenticated %}
+                    <div class="btn btn-primary ml-auto">
+                        <a href="{% url 'newpost' %}" style="color: white;">Add Post</a>
+                    </div>
+            {% endif %}
           </nav>
         
         <div class="body">
@@ -48,4 +54,5 @@
             {% endblock %}
         </div>
     </body>
+    
 </html>

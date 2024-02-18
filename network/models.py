@@ -14,7 +14,13 @@ class Post(models.Model):
     owner = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE)
     date = models.DateTimeField()
     active = models.BooleanField(default=True)
-    likes = models.IntegerField(default=0)
+    
 
     def __str__(self):
-        return f"{self.owner} : {self.content}, {self.likes}, {self.date}"
+        return f"{self.owner} : {self.content},  {self.date}"
+    
+
+class Like(models.Model):
+    user =  models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post,on_delete=models.CASCADE)
+    
