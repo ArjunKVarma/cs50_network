@@ -8,7 +8,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
 from django.urls import reverse
-from network.models import Post ,Like
+from network.models import Post ,Like,Follow
 from .models import User
 from django.core.paginator import Paginator
 
@@ -97,9 +97,105 @@ def addpost(request):
 
         return HttpResponseRedirect(reverse('index'))
     else:
-        return render(request, "auctions/index.html",{
+        return render(request, "network/index.html",{
             
         })
     
+@login_required(login_url='/login')
+def profile(request,user_id):
+
+    curr_user_id=request.user.id
+    curr_user = User.objects.get(id=curr_user_id)
+
+    user = User.objects.get(id=user_id)
+    posts = Post.objects.filter(owner=user)
+
+    followers = Follow.objects.filter(creator=user_id)
+    following = Follow.objects.filter(follower=user_id)
+
+    checkFollow = followers.filter(follower=curr_user_id)
+    if len(checkFollow )!= 0:
+        is_already_followed = True
+    else:
+        is_already_followed = False
+    # Paginate the data (2 objects per page for demonstration)
+    paginator = Paginator(posts, 5)
+    page_number = request.GET.get('page',3)
+    posts = paginator.get_page(page_number)
+
+    is_yourself = False
+
+    if curr_user_id == user_id:
+        is_yourself = True
+
+    return render(request, "network/profile.html",{"allposts": posts,"user_id": user_id,"followers":followers,"following":following, "is_yourself": is_yourself,"is_already_followed": is_already_followed})
+
+@login_required(login_url='/login')    
+def follow(request,user_id):
+    
+    follower_id = request.user.id
+    follower = User.objects.get(id=follower_id)
+    creator = User.objects.get(id=user_id)
+    
+    if not follower_id == user_id:
+        Follow_req = Follow(creator=creator,follower=follower)
+        Follow_req.save()
 
 
+    return HttpResponseRedirect(reverse("profile", kwargs={"user_id" :user_id}))
+@login_required(login_url='/login')    
+def unfollow(request,user_id):
+    
+    follower_id = request.user.id
+    follower = User.objects.get(id=follower_id)
+    creator = User.objects.get(id=user_id)
+    
+    if not follower_id == user_id:
+        Follow.objects.filter(creator=creator,follower=follower).delete()
+        
+
+
+    return HttpResponseRedirect(reverse("profile", kwargs={"user_id" :user_id}))
+
+
+
+@login_required(login_url='/login')
+def following(request):
+
+    curr_user_id=request.user.id
+    curr_user = User.objects.get(id=curr_user_id)
+
+    following = Follow.objects.filter(follower=curr_user)
+    allposts =Post.objects.all()
+    posts =[]
+    for follow in following:
+        for post in allposts:
+                if follow.creator == post.owner:
+                    posts.append(post)
+
+
+    paginator = Paginator(posts, 5)
+    page_number = request.GET.get('page',1)
+    posts = paginator.get_page(page_number)
+
+    return render(request, "network/index.html",{"allposts": posts,})
+
+
+@login_required(login_url='/login')
+def edit(request,post_id):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        content = data['content']
+        post = Post.objects.get(id=post_id)
+        date = datetime.now()
+        
+            
+        if request.user != post.owner:  
+            return HttpResponse("503")
+        
+        post.content = content
+        post.date =date
+        post.save()
+
+        return JsonResponse({"data": data["content"]})
+  

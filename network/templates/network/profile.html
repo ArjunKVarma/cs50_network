@@ -1,0 +1,47 @@
+{% extends "network/layout.html" %}
+{% load static %}
+
+{% block body %}
+<h1>Followers: {{ followers.count }}</h1>
+<h1>Following: {{ following.count }}</h1>
+{% if is_yourself == False and is_already_followed == False%}
+<a href="{% url 'follow' user_id %}"><button>Follow</button></a>
+{% endif %}
+{% if is_already_followed %}
+<a href="{% url 'unfollow' user_id %}"><button>Unfollow</button></a>
+{% endif %}
+<div id="posts">
+    <div class="d-flex align-items-center justify-content-center mt-3">
+      <nav aria-label="Page navigation example ">
+        <ul class="pagination">
+        {% if allposts.has_next %}
+          <li class="page-item"><a class="page-link" href="?page={{ allposts.next_page_number }}">Next</a></li>
+        {% endif %}
+        {% if allposts.has_previous %}
+          <li class="page-item"><a class="page-link" href="?page={{ allposts.previous_page_number }}">Previous</a></li>
+        {% endif %}
+        </ul>
+      </nav>
+    </div>
+      {% for post in allposts %}
+      <div class="content">
+          <a href="{% url 'profile' post.owner.id %}"><h6>{{ post.owner }}</h6></a>
+          <p id="content_{{ post.id }}">{{ post.content }}</p>
+          <p>{{ post.date }}</p>
+          <button id="like" >Like</button>
+          {% if is_yourself == True %}
+            <button id="editpost_{{ post.id }}" onclick="edit({{post.id}})">Edit</button>
+          {% endif %}
+      </div>
+          
+      {% endfor %}
+      
+      
+  </div>
+  {% block script %}
+  <script src="{% static 'network/index.js' %}"></script>
+  {% endblock %}
+
+
+{% endblock %}
+

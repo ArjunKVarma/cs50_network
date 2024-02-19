@@ -18,7 +18,10 @@ class Post(models.Model):
 
     def __str__(self):
         return f"{self.owner} : {self.content},  {self.date}"
-    
+
+class Follow(models.Model):
+    creator = models.ForeignKey(User, on_delete=models.CASCADE , related_name = "creator")
+    follower = models.ForeignKey(User, on_delete=models.CASCADE , related_name = "follower")
 
 class Like(models.Model):
     user =  models.ForeignKey(User, on_delete=models.CASCADE)
