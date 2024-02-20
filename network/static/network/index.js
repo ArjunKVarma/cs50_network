@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
  });
 
 function edit(post_id){
-    console.log(post_id)
+
     var textarea = document.createElement("textarea");
     content_element = document.querySelector(`#content_${post_id}`)
     post_content = content_element.innerHTML
@@ -20,7 +20,7 @@ function edit(post_id){
 
     edit_btn =document.getElementById(`editpost_${post_id}`);
     var submit_btn = document.createElement('button')
-    submit_btn.innerHTML ="submit"
+    submit_btn.innerHTML ="save"
     edit_btn.replaceWith(submit_btn)
     submit_btn.addEventListener('click',()=>{
         console.log("Submitted")
@@ -44,8 +44,57 @@ function edit(post_id){
    
 }
 
+function like(post_id){
+
+        like_count = document.getElementById(`like_count${post_id}`)
+        like_btn = document.getElementById(`like_${ post_id }`)
+
+        fetch(`/like/${post_id}`, {
+            method: 'POST',
+            headers: {"content-type":"application/json","X-CSRFToken": getCookie("csrftoken")},
+            body: JSON.stringify({
+              content: like_count.innerHTML,
+            })
+          })
+            .then(response => response.json())
+            .then(result => {
+              // Print result
+              like_count.innerHTML = result.up_likes
+              like_btn.innerHTML = "Unlike"
+             // $( `#${post_id}` ).load(`#${post_id}`);
+              
+            });
+            
+    
+
+}
+
+function unlike(post_id){
+
+    like_count = document.getElementById(`like_count${post_id}`)
+    unlike_btn = document.getElementById(`unlike_${ post_id }`)
+
+    fetch(`/unlike/${post_id}`, {
+        method: 'POST',
+        headers: {"content-type":"application/json","X-CSRFToken": getCookie("csrftoken")},
+        body: JSON.stringify({
+          content: like_count.innerHTML,
+        })
+      })
+        .then(response => response.json())
+        .then(result => {
+          // Print result
+          like_count.innerHTML = result.up_likes
+          unlike_btn.innerHTML = "Like"  
+         // $( `#${post_id}` ).load(``);
+         
 
 
+        });
+        
+
+
+}
 
 // this is a fuction from Django docs for csrftoken Verification
 function getCookie(name) {

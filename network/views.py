@@ -6,7 +6,7 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-
+from django.db.models import Q
 from django.urls import reverse
 from network.models import Post ,Like,Follow
 from .models import User
@@ -21,8 +21,14 @@ def index(request):
     page_number = request.GET.get('page',3)
     posts = paginator.get_page(page_number)
 
+    allLikes = Like.objects.all()
 
-    return render(request, "network/index.html",{"allposts": posts})
+    postsLiked = []
+
+    for like in allLikes:
+        if like.user.id == request.user.id:
+            postsLiked.append(like.post.id)
+    return render(request, "network/index.html",{"allposts": posts, "postsLiked": postsLiked})
 
 
 def login_view(request):
@@ -127,8 +133,15 @@ def profile(request,user_id):
 
     if curr_user_id == user_id:
         is_yourself = True
+    allLikes = Like.objects.all()
 
-    return render(request, "network/profile.html",{"allposts": posts,"user_id": user_id,"followers":followers,"following":following, "is_yourself": is_yourself,"is_already_followed": is_already_followed})
+    postsLiked = []
+
+    for like in allLikes:
+        if like.user.id == request.user.id:
+            postsLiked.append(like.post.id)
+
+    return render(request, "network/profile.html",{"allposts": posts,"postsLiked": postsLiked,"user_id": user_id,"followers":followers,"following":following, "is_yourself": is_yourself,"is_already_followed": is_already_followed})
 
 @login_required(login_url='/login')    
 def follow(request,user_id):
@@ -177,8 +190,15 @@ def following(request):
     paginator = Paginator(posts, 5)
     page_number = request.GET.get('page',1)
     posts = paginator.get_page(page_number)
+    allLikes = Like.objects.all()
 
-    return render(request, "network/index.html",{"allposts": posts,})
+    postsLiked = []
+
+    for like in allLikes:
+        if like.user.id == request.user.id:
+            postsLiked.append(like.post.id)
+
+    return render(request, "network/index.html",{"allposts": posts,"postsLiked": postsLiked})
 
 
 @login_required(login_url='/login')
@@ -198,4 +218,43 @@ def edit(request,post_id):
         post.save()
 
         return JsonResponse({"data": data["content"]})
+  
+@login_required(login_url='/login')
+def like(request,post_id):
+    if request.method == 'POST':
+        print("hello world")
+        data = json.loads(request.body)
+        likes = int(data['content'])
+        print(likes)
+        post = Post.objects.get(id=post_id)        
+
+        if(Like.objects.filter(Q(user=request.user) & Q(post=post)).exists()  == False): 
+            like_obj = Like(user=request.user,post=post)  
+            like_obj.save()              
+            up_likes = likes + 1
+            post.likes = up_likes
+            post.save()
+        else:
+            up_likes = likes
+
+        return JsonResponse({"data": data["content"],"up_likes": up_likes})
+  
+
+@login_required(login_url='/login')
+def unlike(request,post_id):
+    if request.method == 'POST':
+        print("hello world")
+        data = json.loads(request.body)
+        likes = int(data['content'])
+        print(likes)
+        post = Post.objects.get(id=post_id)        
+        if(Like.objects.filter(Q(user=request.user) & Q(post=post)).exists()  == True): 
+            Like.objects.filter(Q(user=request.user) & Q(post=post)).delete()              
+            up_likes = likes - 1
+            post.likes = up_likes
+            post.save()
+        else:
+            up_likes = likes
+
+        return JsonResponse({"data": data["content"],"up_likes": up_likes})
   

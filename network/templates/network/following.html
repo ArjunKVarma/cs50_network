@@ -22,7 +22,11 @@
         <a href="{% url 'profile' post.owner.id %}"><h6>{{ post.owner }}</h6></a>
         <p>{{ post.content }}</p>
         <p>{{ post.date }}</p>
-        <button id="like" >Like</button>
+        {% if post.id in postsLiked %}
+          <button id="unlike_{{ post.id }}" onclick="unlike({{post.id}})">Liked</button><p>Likes: <span id="like_count{{post.id}}">{{ post.likes }}</span></P>
+        {% else %}  
+          <button id="like_{{ post.id }}" onclick="like({{post.id}})">Like</button><p>Likes: <span id="like_count{{post.id}}">{{ post.likes }}</span></P>
+        {% endif %}
     </div>
         
     {% endfor %}
@@ -32,7 +36,8 @@
 
 
 {% endblock %}
-
 {% block script %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{% static 'network/index.js' %}"></script>
 
 {% endblock %}
