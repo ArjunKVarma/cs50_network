@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
 function edit(post_id){
 
     var textarea = document.createElement("textarea");
+    textarea.classList.add('form-control')
     content_element = document.querySelector(`#content_${post_id}`)
     post_content = content_element.innerHTML
     textarea.innerHTML = post_content
@@ -20,7 +21,19 @@ function edit(post_id){
 
     edit_btn =document.getElementById(`editpost_${post_id}`);
     var submit_btn = document.createElement('button')
-    submit_btn.innerHTML ="save"
+    submit_btn.innerHTML ="Save"
+    
+    submit_btn.style ="20rem;"
+    css(submit_btn,{
+      "margin" : "10px",
+      "width":" 5rem",
+    "background-color": "#ffc107",
+    "border": "1px solid transparent",
+    "padding": ".375rem .75rem",
+    "font-size": "1rem",
+    "border-radius": ".25rem",
+    "transition": "color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out",
+    })
     edit_btn.replaceWith(submit_btn)
     submit_btn.addEventListener('click',()=>{
         console.log("Submitted")
@@ -111,4 +124,10 @@ function getCookie(name) {
         }
     }
     return cookieValue;
+}
+
+
+function css(element, style) {
+  for (const property in style)
+      element.style[property] = style[property];
 }

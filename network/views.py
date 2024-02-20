@@ -18,7 +18,7 @@ def index(request):
     
     # Paginate the data (2 objects per page for demonstration)
     paginator = Paginator(posts, 5)
-    page_number = request.GET.get('page',3)
+    page_number = request.GET.get('page',1)
     posts = paginator.get_page(page_number)
 
     allLikes = Like.objects.all()
@@ -126,7 +126,7 @@ def profile(request,user_id):
         is_already_followed = False
     # Paginate the data (2 objects per page for demonstration)
     paginator = Paginator(posts, 5)
-    page_number = request.GET.get('page',3)
+    page_number = request.GET.get('page',1)
     posts = paginator.get_page(page_number)
 
     is_yourself = False
@@ -141,7 +141,7 @@ def profile(request,user_id):
         if like.user.id == request.user.id:
             postsLiked.append(like.post.id)
 
-    return render(request, "network/profile.html",{"allposts": posts,"postsLiked": postsLiked,"user_id": user_id,"followers":followers,"following":following, "is_yourself": is_yourself,"is_already_followed": is_already_followed})
+    return render(request, "network/profile.html",{"allposts": posts,"user_name":user,"postsLiked": postsLiked,"user_id": user_id,"followers":followers,"following":following, "is_yourself": is_yourself,"is_already_followed": is_already_followed})
 
 @login_required(login_url='/login')    
 def follow(request,user_id):
