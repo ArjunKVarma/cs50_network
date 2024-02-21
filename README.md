@@ -19,3 +19,10 @@ The features Include
 
 
 
+
+<!--
+Usage:
+        docker-compose up -d       -   to run the app
+--!>
+
+
